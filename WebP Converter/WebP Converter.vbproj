@@ -133,6 +133,7 @@
     <Content Include="img\helpicon.png" />
     <Content Include="img\helpicon16px.png" />
     <Content Include="img\helpicon23px.png" />
+    <EmbeddedResource Include="lib\dwebp.exe" />
     <None Include="Resources\appicon.ico" />
     <None Include="Resources\KyroCode.png" />
     <None Include="Resources\helpicon23px.png" />

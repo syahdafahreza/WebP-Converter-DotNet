@@ -40,9 +40,15 @@ WebP Converter
 <member name="M:WebP_Converter.MainForm.LoadImage(System.String)">
  <summary>
  Memuat gambar dari path file, menampilkannya, dan memperbarui UI.
- Metode ini dipanggil oleh event Klik Jelajahi dan DragDrop.
  </summary>
  <param name="filePath">Path lengkap ke file gambar.</param>
+</member>
+<member name="M:WebP_Converter.MainForm.DecodeWebPToImage(System.String)">
+ <summary>
+ Mendekode file WebP menjadi objek Image untuk pratinjau.
+ </summary>
+ <param name="webpPath">Path ke file WebP.</param>
+ <returns>Objek Image dari file WebP yang sudah didekode.</returns>
 </member>
 <member name="M:WebP_Converter.MainForm.btnbrowse_Click(System.Object,System.EventArgs)">
  <summary>
@@ -69,39 +75,29 @@ WebP Converter
  Menyimpan gambar sebagai format JPEG dengan kualitas tertentu.
  </summary>
 </member>
+<member name="M:WebP_Converter.MainForm.SaveAsWebP(System.String,System.Int32)">
+ <summary>
+ Mengekstrak cwebp.exe dari resource dan menjalankannya untuk konversi.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.ExtractResource(System.String,System.String)">
+ <summary>
+ Helper untuk mengekstrak file resource yang disematkan ke path tujuan.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.RunProcess(System.String,System.String)">
+ <summary>
+ Helper untuk menjalankan proses eksternal secara tersembunyi.
+ </summary>
+</member>
 <member name="M:WebP_Converter.MainForm.CopyStream(System.IO.Stream,System.IO.Stream)">
  <summary>
  Salin isi dari satu stream ke stream lain. Pengganti untuk Stream.CopyTo di .NET 3.5.
  </summary>
 </member>
-<member name="M:WebP_Converter.MainForm.SaveAsWebP(System.String,System.Int32)">
- <summary>
- Mengekstrak cwebp.exe dari resource, menjalankannya untuk konversi, lalu menghapusnya.
- </summary>
-</member>
 <member name="M:WebP_Converter.MainForm.GetEncoder(System.Drawing.Imaging.ImageFormat)">
  <summary>
  Helper untuk mendapatkan ImageCodecInfo dari format gambar.
- </summary>
-</member>
-<member name="M:WebP_Converter.MainForm.qualityTrackBar_Scroll(System.Object,System.EventArgs)">
- <summary>
- Menyesuaikan nilai NumericUpDown saat TrackBar digulir.
- </summary>
-</member>
-<member name="M:WebP_Converter.MainForm.qualityNumericUpDown_ValueChanged(System.Object,System.EventArgs)">
- <summary>
- Menyesuaikan nilai TrackBar saat nilai NumericUpDown berubah.
- </summary>
-</member>
-<member name="M:WebP_Converter.MainForm.cmbformatselect_SelectedIndexChanged(System.Object,System.EventArgs)">
- <summary>
- Mengaktifkan/menonaktifkan GroupBox kualitas berdasarkan format yang dipilih.
- </summary>
-</member>
-<member name="M:WebP_Converter.MainForm.btnabout_Click(System.Object,System.EventArgs)">
- <summary>
- Menampilkan kotak "About".
  </summary>
 </member>
 </members>

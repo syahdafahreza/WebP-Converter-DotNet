@@ -17,48 +17,92 @@ Public Class MainForm
         ' Aktifkan fungsionalitas Drag & Drop untuk PictureBox
         previewPictureBox.AllowDrop = True
 
-        ' Pastikan Anda sudah mengganti nama TextBox1 menjadi txtboximgdir di Form Designer
-        txtboximgdir.Text = "Silahkan pilih gambarnya gan..."
+        ' Atur teks awal
+        txtboximgdir.Text = "Pilih gambar atau jatuhkan di sini..."
     End Sub
 
     ''' <summary>
     ''' Memuat gambar dari path file, menampilkannya, dan memperbarui UI.
-    ''' Metode ini dipanggil oleh event Klik Jelajahi dan DragDrop.
     ''' </summary>
     ''' <param name="filePath">Path lengkap ke file gambar.</param>
     Private Sub LoadImage(ByVal filePath As String)
         Try
-            ' Validasi ekstensi file untuk memastikan itu adalah gambar
+            ' Validasi ekstensi file
             Dim validExtensions As String() = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"}
             Dim fileExtension As String = Path.GetExtension(filePath).ToLower()
 
-            ' Khusus untuk webp, kita perlu cara lain untuk memuatnya karena .NET 3.5 tidak mendukung secara native
-            If fileExtension = ".webp" Then
-                MessageBox.Show("Pratinjau untuk format WebP belum didukung, namun Anda tetap bisa mengkonversinya ke format lain.", "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                ' Tampilkan placeholder atau kosongkan gambar
-                previewPictureBox.Image = Nothing
-            ElseIf Not validExtensions.Contains(fileExtension) Then
-                MessageBox.Show("Format file tidak didukung. Silahkan pilih file gambar (jpg, png, gif, bmp).", "Format Salah", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            If Not validExtensions.Contains(fileExtension) Then
+                MessageBox.Show("Format file tidak didukung.", "Format Salah", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return
-            Else
-                ' Tampilkan gambar di PictureBox untuk format yang didukung
-                previewPictureBox.Image = Image.FromFile(filePath)
             End If
 
-            ' Simpan path file dan tampilkan di TextBox
-            selectedImagePath = filePath
-            txtboximgdir.Text = selectedImagePath ' Menggunakan nama baru: txtboximgdir
+            Dim imageToPreview As Image = Nothing
 
-            ' Aktifkan tombol konversi setelah path gambar valid
+            ' Jika file adalah WebP, dekode dulu untuk pratinjau
+            If fileExtension = ".webp" Then
+                imageToPreview = DecodeWebPToImage(filePath)
+            Else
+                ' Untuk format lain, muat langsung
+                imageToPreview = Image.FromFile(filePath)
+            End If
+
+            ' Tampilkan gambar di PictureBox
+            previewPictureBox.Image = imageToPreview
+
+            ' Simpan path file lengkap secara internal
+            selectedImagePath = filePath
+            ' === PERUBAHAN DI SINI ===
+            ' Tampilkan hanya nama file di TextBox
+            txtboximgdir.Text = Path.GetFileName(filePath)
+
+            ' Aktifkan tombol konversi setelah gambar berhasil dimuat
             btnconvert.Enabled = True
+
         Catch ex As Exception
             MessageBox.Show("Gagal memuat gambar: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             btnconvert.Enabled = False
             previewPictureBox.Image = Nothing
             selectedImagePath = String.Empty
-            txtboximgdir.Text = "Gagal memuat gambar." ' Menggunakan nama baru: txtboximgdir
+            txtboximgdir.Text = "Gagal memuat gambar."
         End Try
     End Sub
+
+    ''' <summary>
+    ''' Mendekode file WebP menjadi objek Image untuk pratinjau.
+    ''' </summary>
+    ''' <param name="webpPath">Path ke file WebP.</param>
+    ''' <returns>Objek Image dari file WebP yang sudah didekode.</returns>
+    Private Function DecodeWebPToImage(ByVal webpPath As String) As Image
+        ' Path untuk dwebp.exe dan output sementara di folder temp
+        Dim dwebpPath As String = Path.Combine(Path.GetTempPath(), "dwebp.exe")
+        Dim tempOutputPath As String = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() & ".png")
+        ' Nama resource. Sesuaikan "WebP_Converter" dengan nama root namespace proyek Anda.
+        Dim resourceName As String = "WebP_Converter.dwebp.exe"
+
+        Try
+            ' 1. Ekstrak dwebp.exe dari resource
+            ExtractResource(resourceName, dwebpPath)
+
+            ' 2. Jalankan proses untuk mendekode WebP ke PNG sementara
+            Dim arguments As String = String.Format("""{0}"" -o ""{1}""", webpPath, tempOutputPath)
+            RunProcess(dwebpPath, arguments)
+
+            ' 3. Muat file PNG sementara ke dalam objek Image
+            ' Gunakan MemoryStream untuk menghindari file lock
+            Using fs As New FileStream(tempOutputPath, FileMode.Open, FileAccess.Read)
+                Dim ms As New MemoryStream()
+                CopyStream(fs, ms)
+                Return Image.FromStream(ms)
+            End Using
+
+        Finally
+            ' 4. Hapus file sementara setelah selesai
+            If File.Exists(dwebpPath) Then File.Delete(dwebpPath)
+            If File.Exists(tempOutputPath) Then File.Delete(tempOutputPath)
+        End Try
+
+        Return Nothing
+    End Function
 
     ''' <summary>
     ''' Menangani event klik pada tombol "Jelajahi" untuk memilih gambar.
@@ -69,7 +113,6 @@ Public Class MainForm
             openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.webp|Semua File|*.*"
 
             If openFileDialog.ShowDialog() = DialogResult.OK Then
-                ' Panggil metode LoadImage yang sudah dibuat
                 LoadImage(openFileDialog.FileName)
             End If
         End Using
@@ -79,13 +122,11 @@ Public Class MainForm
     ''' Menangani event klik pada tombol "Konversikan Sekarang!".
     ''' </summary>
     Private Sub btnconvert_Click(sender As Object, e As EventArgs) Handles btnconvert.Click
-        ' Pastikan ada path gambar yang akan dikonversi
-        If String.IsNullOrEmpty(selectedImagePath) Then
+        If previewPictureBox.Image Is Nothing OrElse String.IsNullOrEmpty(selectedImagePath) Then
             MessageBox.Show("Silahkan pilih gambar terlebih dahulu.", "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
 
-        ' Dapatkan format tujuan dari ComboBox
         Dim targetFormat As String = cmbformatselect.SelectedItem.ToString().ToLower()
 
         Using saveFileDialog As New SaveFileDialog()
@@ -98,16 +139,11 @@ Public Class MainForm
             If saveFileDialog.ShowDialog() = DialogResult.OK Then
                 Dim outputPath As String = saveFileDialog.FileName
                 Try
-                    Dim sourceImage As Image = Nothing
-                    If Path.GetExtension(selectedImagePath).ToLower() <> ".webp" Then
-                        sourceImage = previewPictureBox.Image
-                    End If
-
                     Select Case targetFormat
                         Case "jpg"
-                            SaveAsJpeg(sourceImage, outputPath, CInt(qualityNumericUpDown.Value))
+                            SaveAsJpeg(previewPictureBox.Image, outputPath, CInt(qualityNumericUpDown.Value))
                         Case "png"
-                            sourceImage.Save(outputPath, ImageFormat.Png)
+                            previewPictureBox.Image.Save(outputPath, ImageFormat.Png)
                         Case "webp"
                             SaveAsWebP(outputPath, CInt(qualityNumericUpDown.Value))
                     End Select
@@ -153,6 +189,52 @@ Public Class MainForm
     End Sub
 
     ''' <summary>
+    ''' Mengekstrak cwebp.exe dari resource dan menjalankannya untuk konversi.
+    ''' </summary>
+    Private Sub SaveAsWebP(ByVal outputPath As String, ByVal quality As Integer)
+        Dim cwebpPath As String = Path.Combine(Path.GetTempPath(), "cwebp.exe")
+        Dim resourceName As String = "WebP_Converter.cwebp.exe"
+
+        Try
+            ExtractResource(resourceName, cwebpPath)
+            Dim arguments As String = String.Format("-q {0} ""{1}"" -o ""{2}""", quality, selectedImagePath, outputPath)
+            RunProcess(cwebpPath, arguments)
+        Finally
+            If File.Exists(cwebpPath) Then File.Delete(cwebpPath)
+        End Try
+    End Sub
+
+    ''' <summary>
+    ''' Helper untuk mengekstrak file resource yang disematkan ke path tujuan.
+    ''' </summary>
+    Private Sub ExtractResource(ByVal resourceName As String, ByVal outputPath As String)
+        If File.Exists(outputPath) Then Return ' Tidak perlu ekstrak jika sudah ada
+
+        Using resourceStream As Stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName)
+            If resourceStream Is Nothing Then
+                Throw New Exception(String.Format("Resource '{0}' tidak ditemukan.", resourceName))
+            End If
+            Using fileStream As New FileStream(outputPath, FileMode.Create, FileAccess.Write)
+                CopyStream(resourceStream, fileStream)
+            End Using
+        End Using
+    End Sub
+
+    ''' <summary>
+    ''' Helper untuk menjalankan proses eksternal secara tersembunyi.
+    ''' </summary>
+    Private Sub RunProcess(ByVal filePath As String, ByVal arguments As String)
+        Dim startInfo As New ProcessStartInfo()
+        startInfo.FileName = filePath
+        startInfo.Arguments = arguments
+        startInfo.UseShellExecute = False
+        startInfo.CreateNoWindow = True
+        Using process As Process = Process.Start(startInfo)
+            process.WaitForExit()
+        End Using
+    End Sub
+
+    ''' <summary>
     ''' Salin isi dari satu stream ke stream lain. Pengganti untuk Stream.CopyTo di .NET 3.5.
     ''' </summary>
     Private Sub CopyStream(ByVal input As Stream, ByVal output As Stream)
@@ -164,59 +246,6 @@ Public Class MainForm
                 output.Write(buffer, 0, bytesRead)
             End If
         Loop While bytesRead > 0
-    End Sub
-
-    ''' <summary>
-    ''' Mengekstrak cwebp.exe dari resource, menjalankannya untuk konversi, lalu menghapusnya.
-    ''' </summary>
-    Private Sub SaveAsWebP(ByVal outputPath As String, ByVal quality As Integer)
-        ' Path untuk cwebp.exe di folder sementara pengguna.
-        Dim cwebpPath As String = Path.Combine(Path.GetTempPath(), "cwebp.exe")
-        ' Nama resource. Sesuaikan "WebP_Converter" dengan nama root namespace proyek Anda.
-        Dim resourceName As String = "WebP_Converter.cwebp.exe"
-
-        Try
-            ' 1. Ekstrak resource jika belum ada di folder temp
-            If Not File.Exists(cwebpPath) Then
-                ' Dapatkan stream dari resource yang disematkan
-                Using resourceStream As Stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName)
-                    If resourceStream Is Nothing Then
-                        Throw New Exception("Resource 'cwebp.exe' tidak ditemukan. Pastikan nama resource benar dan Build Action sudah diatur ke 'Embedded Resource'.")
-                    End If
-
-                    ' Buat file di folder temp
-                    Using fileStream As New FileStream(cwebpPath, FileMode.Create, FileAccess.Write)
-                        ' === PERBAIKAN DI SINI ===
-                        ' Menggunakan fungsi manual karena .CopyTo() tidak ada di .NET 3.5
-                        CopyStream(resourceStream, fileStream)
-                    End Using
-                End Using
-            End If
-
-            ' 2. Jalankan proses konversi menggunakan cwebp.exe dari folder temp
-            Dim arguments As String = String.Format("-q {0} ""{1}"" -o ""{2}""", quality, selectedImagePath, outputPath)
-            Dim startInfo As New ProcessStartInfo()
-            startInfo.FileName = cwebpPath
-            startInfo.Arguments = arguments
-            startInfo.UseShellExecute = False
-            startInfo.CreateNoWindow = True
-            startInfo.RedirectStandardOutput = True
-            startInfo.RedirectStandardError = True
-
-            Using process As Process = Process.Start(startInfo)
-                process.WaitForExit()
-            End Using
-
-        Finally
-            ' 3. (Opsional) Hapus cwebp.exe dari folder temp setelah selesai
-            If File.Exists(cwebpPath) Then
-                Try
-                    File.Delete(cwebpPath)
-                Catch ex As Exception
-                    ' Abaikan jika gagal dihapus, mungkin masih digunakan.
-                End Try
-            End If
-        End Try
     End Sub
 
     ''' <summary>
@@ -232,23 +261,14 @@ Public Class MainForm
         Return Nothing
     End Function
 
-    ''' <summary>
-    ''' Menyesuaikan nilai NumericUpDown saat TrackBar digulir.
-    ''' </summary>
     Private Sub qualityTrackBar_Scroll(sender As Object, e As EventArgs) Handles qualityTrackBar.Scroll
         qualityNumericUpDown.Value = qualityTrackBar.Value
     End Sub
 
-    ''' <summary>
-    ''' Menyesuaikan nilai TrackBar saat nilai NumericUpDown berubah.
-    ''' </summary>
     Private Sub qualityNumericUpDown_ValueChanged(sender As Object, e As EventArgs) Handles qualityNumericUpDown.ValueChanged
         qualityTrackBar.Value = CInt(qualityNumericUpDown.Value)
     End Sub
 
-    ''' <summary>
-    ''' Mengaktifkan/menonaktifkan GroupBox kualitas berdasarkan format yang dipilih.
-    ''' </summary>
     Private Sub cmbformatselect_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbformatselect.SelectedIndexChanged
         If cmbformatselect.SelectedItem.ToString().ToLower() = "png" Then
             GroupBox1.Enabled = False
@@ -257,17 +277,7 @@ Public Class MainForm
         End If
     End Sub
 
-    ''' <summary>
-    ''' Menampilkan kotak "About".
-    ''' </summary>
     Private Sub btnabout_Click(sender As Object, e As EventArgs) Handles btnabout.Click
-        ' Buat instance baru dari AboutForm
-        'Dim frmAbout As New AboutForm()
-
-        AboutForm.Show()
-
-        ' Tampilkan form sebagai modal dialog.
-        ' Kode di bawah baris ini tidak akan berjalan sampai frmAbout ditutup.
-        ' frmAbout.ShowDialog()
+        AboutForm.ShowDialog()
     End Sub
 End Class

@@ -1,0 +1,108 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+WebP Converter
+</name>
+</assembly>
+<members>
+<member name="T:WebP_Converter.My.Resources.Resources">
+<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+<member name="P:WebP_Converter.My.Resources.Resources.ResourceManager">
+<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member>
+<member name="P:WebP_Converter.My.Resources.Resources.Culture">
+<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member>
+<member name="P:WebP_Converter.My.Resources.Resources.appicon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+</summary>
+</member>
+<member name="P:WebP_Converter.My.Resources.Resources.helpicon23px">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:WebP_Converter.My.Resources.Resources.KyroCode">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="M:WebP_Converter.MainForm.LoadImage(System.String)">
+ <summary>
+ Memuat gambar dari path file, menampilkannya, dan memperbarui UI.
+ Metode ini dipanggil oleh event Klik Jelajahi dan DragDrop.
+ </summary>
+ <param name="filePath">Path lengkap ke file gambar.</param>
+</member>
+<member name="M:WebP_Converter.MainForm.btnbrowse_Click(System.Object,System.EventArgs)">
+ <summary>
+ Menangani event klik pada tombol "Jelajahi" untuk memilih gambar.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.btnconvert_Click(System.Object,System.EventArgs)">
+ <summary>
+ Menangani event klik pada tombol "Konversikan Sekarang!".
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.previewPictureBox_DragEnter(System.Object,System.Windows.Forms.DragEventArgs)">
+ <summary>
+ Event ketika file diseret ke area PictureBox.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.previewPictureBox_DragDrop(System.Object,System.Windows.Forms.DragEventArgs)">
+ <summary>
+ Event ketika file dijatuhkan (drop) di area PictureBox.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.SaveAsJpeg(System.Drawing.Image,System.String,System.Int32)">
+ <summary>
+ Menyimpan gambar sebagai format JPEG dengan kualitas tertentu.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.CopyStream(System.IO.Stream,System.IO.Stream)">
+ <summary>
+ Salin isi dari satu stream ke stream lain. Pengganti untuk Stream.CopyTo di .NET 3.5.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.SaveAsWebP(System.String,System.Int32)">
+ <summary>
+ Mengekstrak cwebp.exe dari resource, menjalankannya untuk konversi, lalu menghapusnya.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.GetEncoder(System.Drawing.Imaging.ImageFormat)">
+ <summary>
+ Helper untuk mendapatkan ImageCodecInfo dari format gambar.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.qualityTrackBar_Scroll(System.Object,System.EventArgs)">
+ <summary>
+ Menyesuaikan nilai NumericUpDown saat TrackBar digulir.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.qualityNumericUpDown_ValueChanged(System.Object,System.EventArgs)">
+ <summary>
+ Menyesuaikan nilai TrackBar saat nilai NumericUpDown berubah.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.cmbformatselect_SelectedIndexChanged(System.Object,System.EventArgs)">
+ <summary>
+ Mengaktifkan/menonaktifkan GroupBox kualitas berdasarkan format yang dipilih.
+ </summary>
+</member>
+<member name="M:WebP_Converter.MainForm.btnabout_Click(System.Object,System.EventArgs)">
+ <summary>
+ Menampilkan kotak "About".
+ </summary>
+</member>
+</members>
+</doc>

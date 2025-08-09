@@ -1,0 +1,11 @@
+c:\users\umarkov\documents\visual studio 2015\Projects\WebP Converter\WebP Converter\bin\Debug\WebP Converter.exe
+c:\users\umarkov\documents\visual studio 2015\Projects\WebP Converter\WebP Converter\bin\Debug\WebP Converter.pdb
+c:\users\umarkov\documents\visual studio 2015\Projects\WebP Converter\WebP Converter\bin\Debug\WebP Converter.xml
+c:\users\umarkov\documents\visual studio 2015\Projects\WebP Converter\WebP Converter\obj\Debug\WebP_Converter.Resources.resources
+c:\users\umarkov\documents\visual studio 2015\Projects\WebP Converter\WebP Converter\obj\Debug\WebP Converter.vbproj.GenerateResource.Cache
+c:\users\umarkov\documents\visual studio 2015\Projects\WebP Converter\WebP Converter\obj\Debug\WebP Converter.exe
+c:\users\umarkov\documents\visual studio 2015\Projects\WebP Converter\WebP Converter\obj\Debug\WebP Converter.xml
+c:\users\umarkov\documents\visual studio 2015\Projects\WebP Converter\WebP Converter\obj\Debug\WebP Converter.pdb
+c:\users\umarkov\documents\visual studio 2015\Projects\WebP Converter\WebP Converter\obj\Debug\WebP_Converter.MainForm.resources
+c:\users\umarkov\documents\visual studio 2015\Projects\WebP Converter\WebP Converter\obj\Debug\WebP_Converter.AboutForm.resources
+C:\Users\Umarkov\Documents\Visual Studio 2015\Projects\WebP Converter\WebP Converter\obj\Debug\WebP Converter.vbprojResolveAssemblyReference.cache
